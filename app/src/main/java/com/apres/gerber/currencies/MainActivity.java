@@ -1,11 +1,14 @@
 package com.apres.gerber.currencies;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -17,8 +20,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.apres.gerber.currencies.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         mCalcButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO define behavior here
+                new CurrencyConverterTask().execute(URL_BASE +mKey);
             }
         });
         mKey = getKey("open_key");
@@ -226,4 +233,74 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+
+    private class CurrencyConverterTask extends AsyncTask<String, Void, JSONObject> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setTitle("Calculating Result...");
+            progressDialog.setMessage("One moment please...");
+            progressDialog.setCancelable(true);
+
+            progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                    "Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            CurrencyConverterTask.this.cancel(true);
+                            progressDialog.dismiss();
+                        }
+                    });
+            progressDialog.show();
+        }
+        @Override
+        protected JSONObject doInBackground(String... params) {
+
+            return new JSONParser().getJSONFromUrl(params[0]);
+
+        }
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+
+            double dCalculated = 0.0;
+            String strForCode =
+                    extractCodeFromCurrency(mCurrencies[mForSpinner.getSelectedItemPosition()]);
+            String strHomCode = extractCodeFromCurrency(mCurrencies[mHomSpinner.getSelectedItemPosition()]);
+            String strAmount = mAmountEditText.getText().toString();
+
+            try {
+
+                if (jsonObject == null){
+                    throw  new JSONException("no data available.");
+                }
+                JSONObject jsonRates = jsonObject.getJSONObject(RATES);
+                if (strHomCode.equalsIgnoreCase("USD")){
+                    dCalculated = Double.parseDouble(strAmount) / jsonRates.getDouble(strForCode);
+                } else if (strForCode.equalsIgnoreCase("USD")) {
+                    dCalculated = Double.parseDouble(strAmount)  * jsonRates.getDouble(strHomCode) ;
+
+                }
+                else {
+                    dCalculated = Double.parseDouble(strAmount) *  jsonRates.getDouble(strHomCode)
+                            / jsonRates.getDouble(strForCode)   ;
+                }
+            } catch (JSONException e) {
+                Toast.makeText(
+                        MainActivity.this,
+                        "There's been a JSON exception: " + e.getMessage(),
+                        Toast.LENGTH_LONG
+
+                ).show();
+                mConvertedTextView.setText("");
+                e.printStackTrace();
+            }
+            mConvertedTextView.setText(DECIMAL_FORMAT.format(dCalculated) + " " + strHomCode);
+            progressDialog.dismiss();
+
+        }
+    }
+
 }
