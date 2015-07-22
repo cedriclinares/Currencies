@@ -33,9 +33,9 @@ public class MainActivity extends ActionBarActivity {
         ArrayList<String> arrayList = ((ArrayList<String>)
                 getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
         Collections.sort(arrayList);
-        mCurrencies=arrayList.toArray(new String[arrayList.size()]);
+        mCurrencies = arrayList.toArray(new String[arrayList.size()]);
         //assigns references to our Views
-        mConvertedTextView = (TextView)findViewById(R.id.txt_converted);
+        mConvertedTextView = (TextView) findViewById(R.id.txt_converted);
         mAmountEditText = (EditText) findViewById(R.id.edt_amount);
         mCalcButton = (Button) findViewById(R.id.btn_calc);
         mForSpinner = (Spinner) findViewById(R.id.spn_for);
@@ -52,16 +52,22 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        switch (id) {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            case R.id.mnu_invert:
+                //TODO define behavior here
+                break;
+
+            case R.id.mnu_codes:
+                //TODO define behavior here
+                break;
+
+            case R.id.mnu_exit:
+                finish();
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 }
