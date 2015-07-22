@@ -9,6 +9,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemSelectedListener {
 
     //defines members that correspond to Views in our layout
     private Button mCalcButton;
@@ -64,6 +66,9 @@ public class MainActivity extends ActionBarActivity {
         //assigns adapters to spinners
         mHomSpinner.setAdapter(arrayAdapter);
         mForSpinner.setAdapter(arrayAdapter);
+
+        mHomSpinner.setOnItemSelectedListener(this);
+        mForSpinner.setOnItemSelectedListener(this);
 
     }
 
@@ -123,5 +128,25 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return true;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        switch (parent.getId()) {
+            case R.id.spn_for:
+                //TODO define behavior here
+                break;
+            case R.id.spn_hom:
+                //TODO define behavior here
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
